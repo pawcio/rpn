@@ -1,32 +1,38 @@
 <?php
 
-	require_once 'settings.php';
-	require_once ENGINE_URL;
-	
-	$version = '1.1';
+    require_once 'settings.php';
+require_once ENGINE_URL;
+
+$version = '1.1';
     $versionDate = '28.10.2009';
 
-	try {
-		$expression = implode(' ', Expression::tokenize($_POST['expression']));
-		$rpn = implode(' ', Expression::to_onp($expression, FALSE));
-		$result = Expression::evaluate($expression);
-		
-		if (isset($_POST['precision'])) {
-			$precision = $_POST['precision'];
-		} else {
-			$precision = 2;
-		}
-		
-		if (is_numeric($precision)) {
-			$precision = (int) $precision;
-			$result = round($result, $precision);
-		}
-		$valid = TRUE;
-	} catch (Exception $e) {
-		$rpn = $e->getMessage();
-		$valid = FALSE;
-	}
+    try {
+        
+        if (isset($_POST['expression'])) {
+            $expression = $_POST['expression'];
+        } else {
+            $expression = '';
+        }
+        
+        $expression = implode(' ', Expression::tokenize($expression));
+        $rpn = implode(' ', Expression::to_onp($expression, FALSE));
+        $result = Expression::evaluate($expression);
 
+        if (isset($_POST['precision'])) {
+            $precision = $_POST['precision'];
+        } else {
+            $precision = 2;
+        }
+
+        if (is_numeric($precision)) {
+            $precision = (int) $precision;
+            $result = round($result, $precision);
+        }
+        $valid = TRUE;
+    } catch (Exception $e) {
+        $rpn = $e->getMessage();
+        $valid = FALSE;
+    }
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
