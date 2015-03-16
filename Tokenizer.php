@@ -1,5 +1,7 @@
 <?php
 
+require_once 'Stack.php';
+
 /**
  * Description of Tokenizer
  *
@@ -9,57 +11,74 @@ class Tokenizer {
 
     private $operators_braces = array('^', '*', '/', '%', '+', '-', '(', ')');
 
+    /**
+     *
+     * @var Stack 
+     */
+    private $tokens;
+
     public function tokenize($expression) {
 
+        $this->tokens = new Stack();
+        
         $input = str_replace(array("\s", "\n", "\r", "\t", ' ', '_', '"', "'", '\\'), '', $expression);
         $input = str_replace("&#8722;", '-', $input);
-        $input = strtolower($input);
-        $input = str_split($input);
+        $input = trim(strtolower($input));
         
-        $output = array();
+        if (strlen($input) == 0) {
+            return $this->tokens;
+        }
+        
+        $input = str_split($input);
 
         foreach ($input as $char) {
-            $output = $this->parseCharacter($char, $output);
+            $this->parseCharacter($char);
         }
 
-        return $output;
+        return $this->tokens;
     }
 
-    private function parseCharacter($char, $output) {
+    private function parseCharacter($char) {
 
         if ($this->isNumber($char)) {
-            return $this->parseNumber($char, $output);
+            $this->parseNumber($char);
+            return;
         }
 
         if ($this->isOperator($char)) {
-            return $this->addToken($output, $char);
+            $this->addToken($char);
+            return;
         }
 
         if (is_string($char)) {
-            return $this->parseString($char, $output);
+            $this->parseString($char);
+            return;
         }
-        
+
         // ignore other characters
     }
 
-    private function parseNumber($char, $output) {
-        if ($this->isNumber(end($output))) {
-            $output[count($output) - 1] .= $char;
-            return $output;
+    private function parseNumber($char) {
+        if ($this->isNumber($this->tokens->peek())) {
+            $this->tokens->amend($char);
+            return;
         }
 
-        return $this->addToken($output, $char);
+        $this->addToken($char);
     }
 
-    private function parseString($char, $output) {
-        if (is_string(end($output)) && ! $this->isOperator(end($output))) {
-            $output[count($output) - 1] .= $char;
-            return $output;
+    private function parseString($char) {
+
+        $peek = $this->tokens->peek();
+
+        if (is_string($peek) && !$this->isOperator($peek)) {
+            $this->tokens->amend($char);
+            return;
         }
-        
-        return $this->addToken($output, $char);
+
+        $this->addToken($char);
     }
-    
+
     private function isNumber($char) {
         return is_numeric($char) || $char == '.';
     }
@@ -67,9 +86,9 @@ class Tokenizer {
     private function isOperator($char) {
         return in_array($char, $this->operators_braces);
     }
-    
-    private function addToken($output, $char) {
-        array_push($output, $char);
-        return $output;
+
+    private function addToken($char) {
+        $this->tokens->push($char);
     }
+
 }

@@ -1,5 +1,6 @@
 <?php
 
+require_once 'PostfixConverter.php';
 require_once 'Tokenizer.php';
 
 class Expression {
@@ -17,8 +18,6 @@ class Expression {
     );
     private static $operators = array('^', '*', '/', '%', '+', '-');
     
-    private static $tokenizer = null;
-
     public static function version() {
         return self::$version;
     }
@@ -26,108 +25,14 @@ class Expression {
     public static function versionDate() {
         return self::$versionDate;
     }
-    
-    private static function getTokenizer() {
-        if (self::$tokenizer === null) {
-            self::$tokenizer = new Tokenizer();
-        }
-        
-        return self::$tokenizer;
-    }
 
     public static function tokenize($expression) {
-        $tokenizer = self::getTokenizer();
+        $tokenizer = new Tokenizer();
         return $tokenizer->tokenize($expression);
     }
-
-    public static function to_onp($input, $has_x = TRUE) {
-        $tokens = self::tokenize($input);
-        $output = array();
-        $errors = array('ERROR');
-        $stack = array();
-        $operorder = array('^' => 3, '*' => 2, '/' => 2, '%' => 2, '+' => 1,
-            '-' => 1);
-
-        $operassoc = array('^' => 'r', '*' => 'b', '/' => 'l', '+' => 'b',
-            '-' => 'l');
-
-        while (count($tokens) > 0) {
-            $token = array_shift($tokens);
-
-            if ($token == 'x') {
-                if ($has_x === TRUE) {
-                    array_push($output, 'x');
-                } else {
-                    throw new Exception("Nieznany operator: {$token}");
-                }
-            } else if ($token == 'pi') {
-                array_push($output, M_PI);
-            } else if ($token == 'e') {
-                array_push($output, M_E);
-            } else if ($token == 'euler') {
-                array_push($output, M_EULER);
-            } else if (is_numeric($token)) {
-                array_push($output, $token);
-            } else if (in_array($token, self::$functions)) {
-                array_push($stack, $token);
-            } else if ($token == ',') {
-                while ((count($stack) > 0) && (end($stack) != '(')) {
-                    array_push($output, array_pop($stack));
-                }
-            } else if (in_array($token, self::$operators)) {
-                $isRightAssoc = $operassoc[$token] == 'r';
-                $tokenOrder = $operorder[$token];
-
-                while ((count($stack) > 0) &&
-                (
-                (!$isRightAssoc && ($tokenOrder <= $operorder[end($stack)])) || ($isRightAssoc && ($tokenOrder < $operorder[end($stack)]))
-                )) {
-                    array_push($output, array_pop($stack));
-                }
-
-                // push o1 onto the stack.
-                array_push($stack, $token);
-            } else if ($token == '(') {
-                array_push($stack, '(');
-            } else if ($token == ')') {
-                if (!in_array('(', $stack)) {
-                    throw new Exception("brak nawiasu otwierającego");
-                }
-
-                // Until the token at the top of the stack is a left parenthesis,
-                // pop operators off the stack onto the output queue.
-                while ((end($stack) != '(') && in_array('(', $stack)) {
-                    array_push($output, array_pop($stack));
-                }
-
-                // Pop the left parenthesis from the stack, but not onto the output queue.
-                array_pop($stack);
-
-                // If the token at the top of the stack is a function token, pop it and onto the output queue.
-                if (in_array(end($stack), self::$functions)) {
-                    array_push($output, array_pop($stack));
-                }
-            } else if (!empty($token)) {
-                throw new Exception("Nieznany operator: {$token}");
-            }
-        }
-
-        while (count($stack) > 0) {
-            $operator = array_pop($stack);
-
-            if (($operator == '(') || ($operator == ')')) {
-                throw new Exception("brak nawiasu zamykającego");
-            } else {
-                array_push($output, $operator);
-            }
-        }
-
-        return $output;
-    }
-
+    
     public static function evaluate_onp($input, $x = FALSE) {
         $stack = array();
-        $output = array();
 
         foreach ($input as $token) {
             if ($token == 'x') {
@@ -272,7 +177,13 @@ class Expression {
     }
 
     public static function evaluate($expression) {
-        return self::evaluate_onp(self::to_onp($expression));
+        $tokenizer = new Tokenizer();
+        $converter = new PostfixConverter();
+        
+        $tokens = $tokenizer->tokenize($expression);
+        $postfix = $converter->convert($tokens);
+        $result = self::evaluate_onp($postfix);
+        return $result;
     }
 
 }

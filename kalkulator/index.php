@@ -1,7 +1,8 @@
 <?php
 
-    require_once 'settings.php';
+require_once 'settings.php';
 require_once ENGINE_URL;
+require_once '../Tokenizer.php';
 
 $version = '1.1';
     $versionDate = '28.10.2009';
@@ -14,8 +15,6 @@ $version = '1.1';
             $expression = '';
         }
         
-        $expression = implode(' ', Expression::tokenize($expression));
-        $rpn = implode(' ', Expression::to_onp($expression, FALSE));
         $result = Expression::evaluate($expression);
 
         if (isset($_POST['precision'])) {
