@@ -16,7 +16,7 @@
 	require_once 'input.php';
 	
 	$version = '1.6.3';
-    $versionDate = '03.02.2011';
+        $versionDate = '03.02.2011';
 	$defaultExpression =  'cos ( x * euler ) + sqrt ( abs ( pi - x ) )';
 
 	if (isset($_POST['expression']) && ( ! empty($_POST['expression'])))
