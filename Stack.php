@@ -1,11 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  * Description of TokenStack
  *
@@ -20,7 +14,7 @@ class Stack implements IteratorAggregate {
     }
 
     public function push($token) {
-        array_push($this->stack, $token);
+        $this->stack[] = $token;
     }
 
     public function amend($token) {
@@ -42,9 +36,9 @@ class Stack implements IteratorAggregate {
     }
 
     public function pop() {
-        return array_shift($this->stack);
+        return array_pop($this->stack);
     }
-    
+
     public function has($token) {
         return in_array($token, $this->stack);
     }
