@@ -20,18 +20,18 @@ class Tokenizer {
     public function tokenize($expression) {
 
         $this->tokens = new Stack();
-        
+
         $input = str_replace(array("\s", "\n", "\r", "\t", ' ', '_', '"', "'", '\\'), '', $expression);
         $input = str_replace("&#8722;", '-', $input);
         $input = trim(strtolower($input));
-        
+
         if (strlen($input) == 0) {
             return $this->tokens;
         }
-        
-        $input = str_split($input);
 
-        foreach ($input as $char) {
+        $characters = str_split($input);
+
+        foreach ($characters as $char) {
             $this->parseCharacter($char);
         }
 
@@ -56,6 +56,7 @@ class Tokenizer {
         }
 
         // ignore other characters
+        // TODO: throw parsing errors when input is invalid
     }
 
     private function parseNumber($char) {
