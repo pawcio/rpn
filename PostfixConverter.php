@@ -73,8 +73,13 @@ class PostfixConverter {
             return;
         }
 
-        if (is_numeric($token) || in_array($token, $this->functions)) {
+        if (is_numeric($token)) {
             $this->output->push($token);
+            return;
+        }
+        
+        if (in_array($token, $this->functions)) {
+            $this->stack->push($token);
             return;
         }
 
@@ -116,7 +121,7 @@ class PostfixConverter {
     }
 
     private function flushFunctionArguments() {
-        while (($this->stack->size() > 0) && ($this->stack->peek() != '(')) {
+        while ($this->stack->has('(') && ($this->stack->peek() != '(')) {
             $this->output->push($this->stack->pop());
         }
     }
@@ -158,7 +163,7 @@ class PostfixConverter {
 
         // Until the token at the top of the stack is a left parenthesis,
         // pop operators off the stack onto the output queue.
-        while ($this->stack->peek() != '(') {
+        while ($this->stack->has('(') && $this->stack->peek() != '(') {
             $this->output->push($this->stack->pop());
         }
 
@@ -170,5 +175,4 @@ class PostfixConverter {
             $this->output->push($this->stack->pop());
         }
     }
-
 }
