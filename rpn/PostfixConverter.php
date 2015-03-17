@@ -1,6 +1,9 @@
 <?php
 
-require_once 'Stack.php';
+namespace rpn;
+
+use Exception;
+use Traversable;
 
 /**
  * Description of PostfixConverter

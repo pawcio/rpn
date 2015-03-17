@@ -1,6 +1,8 @@
 <?php
 
-require_once 'Stack.php';
+namespace rpn;
+
+use rpn\Stack;
 
 /**
  * Description of Tokenizer

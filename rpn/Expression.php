@@ -1,8 +1,8 @@
 <?php
 
-require_once 'PostfixConverter.php';
-require_once 'PostfixEvaluator.php';
-require_once 'Tokenizer.php';
+namespace rpn;
+
+use rpn\Tokenizer;
 
 class Expression {
 

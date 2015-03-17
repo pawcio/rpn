@@ -1,6 +1,8 @@
 <?php
 
-require_once 'Stack.php';
+namespace rpn;
+
+use Exception;
 
 /**
  * Description of PostfixEvaluator

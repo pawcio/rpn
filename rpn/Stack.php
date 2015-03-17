@@ -1,5 +1,10 @@
 <?php
 
+namespace rpn;
+
+use ArrayIterator;
+use IteratorAggregate;
+
 /**
  * Description of TokenStack
  *
@@ -25,7 +30,7 @@ class Stack implements IteratorAggregate {
         $size = $this->size();
 
         if ($size > 0) {
-            return $this->stack[count($this->stack) - 1];
+            return $this->stack[$size - 1];
         }
 
         return null;

@@ -1,0 +1,6 @@
+{
+    "name": "RPN",
+    "autoload": {
+        "psr-4": {"rpn\\": "rpn/"}
+    }
+}
